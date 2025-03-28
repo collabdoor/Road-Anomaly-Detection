@@ -1,0 +1,147 @@
+item {
+  id: 1
+  name: "motorcycle"
+}
+
+item {
+  id: 2
+  name: "animal"
+}
+
+item {
+  id: 3
+  name: "auto rickshaw"
+}
+
+item {
+  id: 4
+  name: "bicycle"
+}
+
+item {
+  id: 5
+  name: "billboard"
+}
+
+item {
+  id: 6
+  name: "bridge"
+}
+
+item {
+  id: 7
+  name: "building"
+}
+
+item {
+  id: 8
+  name: "bus"
+}
+
+item {
+  id: 9
+  name: "car"
+}
+
+item {
+  id: 10
+  name: "curb"
+}
+
+item {
+  id: 11
+  name: "drivable fallback"
+}
+
+item {
+  id: 12
+  name: "fallback background"
+}
+
+item {
+  id: 13
+  name: "fence"
+}
+
+item {
+  id: 14
+  name: "guard rail"
+}
+
+item {
+  id: 15
+  name: "non-drivable fallback"
+}
+
+item {
+  id: 16
+  name: "obs-str-bar-fallback"
+}
+
+
+item {
+  id: 17
+  name: "person"
+}
+
+item {
+  id: 18
+  name: "pole"
+}
+
+item {
+  id: 19
+  name: "polegroup"
+}
+
+item {
+  id: 20
+  name: "rider"
+}
+
+item {
+  id: 21
+  name: "sidewalk"
+}
+
+item {
+  id: 22
+  name: "sky"
+}
+
+item {
+  id: 23
+  name: "traffic light"
+}
+
+item {
+  id: 24
+  name: "traffic sign"
+}
+
+item {
+  id: 25
+  name: "truck"
+}
+
+item {
+  id: 26
+  name: "vegetation"
+}
+
+item {
+  id: 27
+  name: "vehicle fallback"
+}
+
+item {
+  id: 28
+  name: "wall"
+}
+
+item {
+  id: 29
+  name: "pothole"
+}
+
+

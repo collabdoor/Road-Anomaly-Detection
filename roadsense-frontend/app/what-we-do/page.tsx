@@ -54,7 +54,7 @@ export default function WhatWeDo() {
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-primary rounded-2xl opacity-20 blur-xl"></div>
                   <Image
-                    src="/placeholder.svg?height=400&width=800"
+                    src="/whatwedo.jpg"
                     width={800}
                     height={400}
                     alt="Road anomaly detection system in action"

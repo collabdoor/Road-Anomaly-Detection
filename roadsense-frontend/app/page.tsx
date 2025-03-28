@@ -16,16 +16,16 @@ export default function Home() {
             <div className="w-8 h-8 rounded-md bg-gradient-primary flex items-center justify-center">
               <span className="text-white font-bold">R</span>
             </div>
-            <span className="gradient-text font-bold">RoadSense AI</span>
+            <span className="text-indigo-400 font-bold">RoadSense AI</span>
           </Link>
           <nav className="ml-auto flex gap-4 sm:gap-6">
-            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/" className="text-sm font-medium hover:text-indigo-400 transition-colors">
               Home
             </Link>
-            <Link href="/what-we-do" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/what-we-do" className="text-sm font-medium hover:text-indigo-400 transition-colors">
               What We Do
             </Link>
-            <Link href="/lets-try" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/lets-try" className="text-sm font-medium hover:text-indigo-400 transition-colors">
               Let's Try
             </Link>
           </nav>
@@ -39,7 +39,7 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none glow-text">
-                    <span className="gradient-text">Road Anomaly Detection</span> Using Machine Learning
+                    <span className="text-indigo-400">Road Anomaly Detection</span> Using Machine Learning
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
                     Enhancing road safety with advanced AI technology that detects and alerts drivers to potential
@@ -48,7 +48,7 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Link href="/what-we-do">
-                    <Button size="lg" className="gap-1 bg-gradient-primary hover:opacity-90 transition-opacity">
+                    <Button size="lg" className="gap-1 bg-indigo-400 hover:opacity-90 transition-opacity">
                       What We Do
                       <ArrowRight className="h-4 w-4" />
                     </Button>
@@ -68,7 +68,7 @@ export default function Home() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-primary rounded-2xl opacity-20 blur-xl"></div>
                 <Image
-                  src="/placeholder.svg?height=550&width=550"
+                  src="/roadsense.webp"
                   width={550}
                   height={550}
                   alt="Road anomaly detection illustration"
@@ -83,7 +83,7 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl gradient-text">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-indigo-400">
                   How It Works
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
@@ -113,7 +113,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold gradient-text">Detect</h3>
+                  <h3 className="text-xl font-bold text-indigo-400">Detect</h3>
                   <p className="text-muted-foreground">
                     Our AI identifies potholes, cracks, and other road anomalies with high precision.
                   </p>
@@ -138,7 +138,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold gradient-text">Analyze</h3>
+                  <h3 className="text-xl font-bold text-indigo-400">Analyze</h3>
                   <p className="text-muted-foreground">
                     Process video feeds in real-time to classify and prioritize detected anomalies.
                   </p>
@@ -162,7 +162,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold gradient-text">Alert</h3>
+                  <h3 className="text-xl font-bold text-indigo-400">Alert</h3>
                   <p className="text-muted-foreground">
                     Provide timely warnings to drivers and collect data for infrastructure improvement.
                   </p>
