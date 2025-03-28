@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 13%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 13%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 252 87% 59%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 223 47% 18%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 12 90% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 19% 27%;
+    --input: 217 19% 27%;
+    --ring: 212.7 26.8% 83.9%;
+
+    --radius: 0.75rem;
+
+    --sidebar: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-muted: 223 47% 18%;
+    --sidebar-muted-foreground: 215 20.2% 65.1%;
+    --sidebar-accent: 12 90% 60%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-primary: 252 87% 59%;
+    --sidebar-primary-foreground: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.glow-text {
+  text-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+}
+
+.glow-border {
+  box-shadow: 0 0 15px rgba(79, 70, 229, 0.3);
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-primary;
+}
+
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  z-index: -1;
+}
+
+.blob-1 {
+  background: rgba(79, 70, 229, 0.6);
+  width: 400px;
+  height: 400px;
+  top: 10%;
+  left: 10%;
+}
+
+.blob-2 {
+  background: rgba(124, 58, 237, 0.6);
+  width: 350px;
+  height: 350px;
+  bottom: 10%;
+  right: 10%;
+}
+
+.blob-3 {
+  background: rgba(59, 130, 246, 0.6);
+  width: 300px;
+  height: 300px;
+  top: 50%;
+  right: 20%;
+}
+
+.animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
