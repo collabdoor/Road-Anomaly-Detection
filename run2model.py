@@ -6,8 +6,8 @@ from pathlib import Path
 import traceback  # Keep for detailed error reporting
 
 # Configuration
-MODEL_1_WEIGHTS_PATH_STR = r"Road-Anomaly-Detection\RoadDetectionModel\RoadModel_yolov8m.pt_rounds120_b9\weights\best.pt"
-MODEL_2_WEIGHTS_PATH_STR = r"Road-Anomaly-Detection\YOLOv8_Small_2nd_Model"
+MODEL_1_WEIGHTS_PATH_STR = r"RoadDetectionModel\RoadModel_yolov8m.pt_rounds120_b9\weights"
+MODEL_2_WEIGHTS_PATH_STR = r"YOLOv8_Small_2nd_Model.pt"
 CONF_THRESHOLD_MODEL_1 = 0.35
 CONF_THRESHOLD_MODEL_2 = 0.40
 MODE = "video"  # Options: "image", "video", "live"

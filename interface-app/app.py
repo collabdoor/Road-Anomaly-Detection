@@ -23,7 +23,7 @@ for folder in [app.config['UPLOAD_FOLDER'], app.config['RESULT_FOLDER']]:
     os.makedirs(folder, exist_ok=True)
 
 # Load model
-MODEL_PATH = "YOLOv8_Small_RDD.pt"  # Update this to your model path
+MODEL_PATH = "../RoadDetectionModel\RoadModel_yolov8m.pt_rounds120_b9\weights\best.pt"  # Update this to your model path
 CONF_THRESHOLD = 0.35
 
 try:

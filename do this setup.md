@@ -1,5 +1,5 @@
 
-## 1. Create Python Virtual Environment  Or use Anaconda Environment
+## 1. Create Python Virtual Environment  Or use Anaconda Environment to run this locally
 ```bash
 # Create a new virtual environment
 python -m venv venv
@@ -8,6 +8,11 @@ python -m venv venv
 # On Windows:
 venv\Scripts\activate
 
+```
+# to deactivate (venv) type
+
+```bash
+deactivate
 ```
 
 # or
