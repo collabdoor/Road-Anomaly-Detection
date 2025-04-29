@@ -1,5 +1,7 @@
 # Road Anomaly Detection Results
 
+---
+
 ## Training Process
 
 ![Training Batch 0](RoadDetectionModel/RoadModel_yolov8m.pt_rounds120_b9/train_batch0.jpg)
@@ -45,8 +47,9 @@ Batch 2:
 
 ### Training Results
 ![Results](RoadDetectionModel/RoadModel_yolov8m.pt_rounds120_b9/results.png)
-```
 
 ---
 
-##Model trained with YOLOv8m for 120 rounds with batch size 9
+# Model trained with YOLOv8m for 120 rounds with batch size 9
+
+---
