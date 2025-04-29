@@ -1,10 +1,13 @@
 # Python version used in the environment should be 3.9 or higher
 ultralytics==8.3.120
-opencv-python==4.11.0
+opencv-python==4.11.0.86
 supervision==0.25.1
-torch==2.7.0+cu128
+torch
+torchvision
+torchaudio
+--index-url https://download.pytorch.org/whl/cu118
 numpy==1.24.3
 PyYAML==6.0.2
 requests==2.32.3
-Pillow==10.4.0 
+Pillow==10.4.0
 tqdm==4.67.1
