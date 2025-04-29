@@ -27,7 +27,7 @@ MODEL_PATH = "YOLOv8_Small_RDD.pt"  # Update this to your model path
 CONF_THRESHOLD = 0.35
 
 try:
-    model = YOLO(MODEL_PATH)
+    model = YOLO("../RoadDetectionModel\RoadModel_yolov8m.pt_rounds120_b9\weights\best.pt")
     class_names = model.model.names if hasattr(model, "model") else model.names
     print(f"Model loaded successfully! Classes: {class_names}")
 except Exception as e:
