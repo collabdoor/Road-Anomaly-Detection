@@ -22,10 +22,6 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Load Model
 print(f"Loading model from: {BEST_WEIGHTS_PATH}")
-if not BEST_WEIGHTS_PATH.is_file():
-    print(f"ERROR: Can't find weights file at {BEST_WEIGHTS_PATH}")
-    print("Check the path and try again.")
-    exit()
 
 try:
     model = YOLO(str(BEST_WEIGHTS_PATH))
@@ -33,6 +29,7 @@ try:
     print(f"Model loaded! Classes: {class_names}")
 except Exception as e:
     print(f"Failed to load model: {e}")
+    print(f"Please ensure the model file exists at: {BEST_WEIGHTS_PATH}")
     exit()
 
 # Initialize Supervision Annotators

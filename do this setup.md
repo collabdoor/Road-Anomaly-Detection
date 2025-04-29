@@ -28,15 +28,11 @@ conda activate yolo_env
 ```
 
 
-## 2. Install Required Packages
+## 2. Install Required Packages Use reqirements.txt
 ```bash
 # Install PyTorch with CUDA support for GPU acceleration
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+pip3 install -r requirements.txt      
 
-# Install other required packages
-pip install ultralytics
-pip install opencv-python
-pip install supervision
 ```
 
 ## 3. Verify Installation

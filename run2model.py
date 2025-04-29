@@ -6,11 +6,14 @@ from pathlib import Path
 import traceback  # Keep for detailed error reporting
 
 # Configuration
-MODEL_1_WEIGHTS_PATH_STR = r"RoadDetectionModel\RoadModel_yolov8m.pt_rounds120_b9\weights"
+MODEL_1_WEIGHTS_PATH_STR = r".\RoadDetectionModel\RoadModel_yolov8m.pt_rounds120_b9\weights\best.pt"
 MODEL_2_WEIGHTS_PATH_STR = r"YOLOv8_Small_2nd_Model.pt"
+
 CONF_THRESHOLD_MODEL_1 = 0.35
 CONF_THRESHOLD_MODEL_2 = 0.40
+
 MODE = "video"  # Options: "image", "video", "live"
+
 INPUT_IMAGE_PATH_STR = r"path\to\your\test\image.jpg"
 INPUT_VIDEO_PATH_STR = r"Downloads\v.mp4"
 OUTPUT_DIR_STR = "inference_output_two_models"
@@ -35,35 +38,20 @@ try:
     else:
         model1 = YOLO(str(MODEL_1_WEIGHTS_PATH))
         class_names1 = model1.names
+        print("Model 1 loaded successfully.")
 
-    if not MODEL_2_WEIGHTS_PATH.is_file() and MODEL_2_WEIGHTS_PATH.suffix == ".pt":
-        print(
-            f"Model 2 weights not found locally, trying to download: {MODEL_2_WEIGHTS_PATH.name}"
-        )
-        try:
-            # Try to download if it's a standard YOLO model
-            model2 = YOLO(MODEL_2_WEIGHTS_PATH.name)
-            # Update path if download worked
-            MODEL_2_WEIGHTS_PATH = Path(MODEL_2_WEIGHTS_PATH.name)
-            if not MODEL_2_WEIGHTS_PATH.is_file():
-                print(
-                    f"Download attempted but can't find model file. Check your internet connection."
-                )
-                model2 = None
-        except Exception as download_e:
-            print(f"Couldn't find or download Model 2 weights: {download_e}")
-            model2 = None
-    elif MODEL_2_WEIGHTS_PATH.is_file():
-        model2 = YOLO(str(MODEL_2_WEIGHTS_PATH))
-    else:
+    if not MODEL_2_WEIGHTS_PATH.is_file():
         print(f"Model 2 weights not found at {MODEL_2_WEIGHTS_PATH}")
+    else:
+        model2 = YOLO(str(MODEL_2_WEIGHTS_PATH))
+        class_names2 = model2.names
+        print("Model 2 loaded successfully.")
 
     if model1 and model2:
-        class_names2 = model2.names
         models_loaded = True
         print("Great! Both models loaded successfully.")
     else:
-        print("Problem: One or both models failed to load.")
+        print("Problem: One or both models failed to load. Please check the paths.")
 
 except Exception as e:
     print(f"Something went wrong loading the models: {e}")
@@ -89,7 +77,7 @@ label_annotator2 = sv.LabelAnnotator(
     color=sv.Color.WHITE,
     text_color=sv.Color.BLACK,
     text_padding=2,
-    text_position=sv.Position.BOTTOM_LEFT,
+    text_position=sv.Position.TOP_RIGHT,
 )
 
 # Inference Functions
