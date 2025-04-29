@@ -3,7 +3,7 @@ import cv2
 import supervision as sv
 import time
 from pathlib import Path
-import traceback  # Keep for detailed error reporting
+import traceback  
 
 # Configuration
 MODEL_1_WEIGHTS_PATH_STR = r".\RoadDetectionModel\RoadModel_yolov8m.pt_rounds120_b9\weights\best.pt"

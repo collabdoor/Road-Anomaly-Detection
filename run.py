@@ -1,7 +1,6 @@
 from ultralytics import YOLO
 import cv2
 import supervision as sv
-import os
 import time
 from pathlib import Path
 
