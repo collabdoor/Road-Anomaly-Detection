@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 # Configuration
-BEST_WEIGHTS_PATH_STR = r"YOLOv8_Small_RDD.pt"
+BEST_WEIGHTS_PATH_STR = r"YOLOv8_Small_2nd_Model.pt"
 CONF_THRESHOLD = 0.35
 MODE = "image"
 
