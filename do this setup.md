@@ -1,5 +1,5 @@
 
-## 1. Create Python Virtual Environment
+## 1. Create Python Virtual Environment  Or use Anaconda Environment
 ```bash
 # Create a new virtual environment
 python -m venv venv
@@ -9,6 +9,19 @@ python -m venv venv
 venv\Scripts\activate
 
 ```
+
+# or
+
+## Create a anaconda
+
+```bash
+# Create a new conda environment with Python
+conda create -n yolo_env python =3.10
+
+# Activate the conda environment
+conda activate yolo_env
+```
+
 
 ## 2. Install Required Packages
 ```bash
