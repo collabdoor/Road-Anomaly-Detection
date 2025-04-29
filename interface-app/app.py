@@ -47,7 +47,7 @@ except Exception as e:
 # Initialize annotators
 box_annotator = sv.BoxAnnotator(thickness=2)
 label_annotator = sv.LabelAnnotator(
-    text_thickness=1, text_scale=0.6, text_color=(0, 0, 0), text_padding=2
+    text_thickness=1, text_scale=0.6, text_color=sv.Color.BLACK, text_padding=2
 )
 
 
