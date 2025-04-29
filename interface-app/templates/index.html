@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Defect Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Road Defect Detection</h1>
+            <p>Upload an image to detect road defects like potholes, cracks, and other anomalies</p>
+        </header>
+
+        <div class="upload-section">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <p class="alert">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                <div class="file-input">
+                    <label for="file">Choose an image:</label>
+                    <input type="file" name="file" id="file" accept=".jpg,.jpeg,.png" required>
+                </div>
+                <div class="submit">
+                    <button type="submit">Detect Defects</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="instructions">
+            <h2>Instructions</h2>
+            <ol>
+                <li>Upload an image of a road section</li>
+                <li>Wait for the model to process the image</li>
+                <li>View the detected road defects with bounding boxes</li>
+            </ol>
+        </div>
+
+        <footer>
+            <p>Road Defect Detection System using YOLOv8</p>
+        </footer>
+    </div>
+</body>
+</html>

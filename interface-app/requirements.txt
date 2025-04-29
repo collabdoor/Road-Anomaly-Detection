@@ -1,0 +1,7 @@
+flask==2.3.3
+werkzeug==2.3.7
+numpy==1.24.3
+opencv-python==4.8.0.74
+ultralytics==8.0.196
+supervision==0.16.0
+Pillow==10.0.0

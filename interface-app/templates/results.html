@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Defect Detection Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Detection Results</h1>
+            <p>Analysis of uploaded road image</p>
+        </header>
+
+        <div class="results-section">
+            <div class="image-container">
+                <div class="image-box">
+                    <h3>Original Image</h3>
+                    <img src="{{ url_for('static', filename='uploads/' + original) }}" alt="Original Image">
+                </div>
+                <div class="image-box">
+                    <h3>Detected Defects</h3>
+                    <img src="{{ url_for('static', filename='results/' + result) }}" alt="Detection Results">
+                </div>
+            </div>
+
+            <div class="detections-info">
+                <h3>Detection Details</h3>
+                {% if detections %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Defect Type</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detection in detections %}
+                                <tr>
+                                    <td>{{ detection.id }}</td>
+                                    <td>{{ detection.class }}</td>
+                                    <td>{{ detection.confidence }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No defects detected in this image.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('index') }}" class="btn">Analyze Another Image</a>
+        </div>
+
+        <footer>
+            <p>Road Defect Detection System using YOLOv8</p>
+        </footer>
+    </div>
+</body>
+</html>
