@@ -5,6 +5,8 @@ from ultralytics import YOLO
 import supervision as sv
 import tempfile
 import os
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, WebRtcMode
+import av 
 
 # Configuration
 MODEL_PATHS = {
@@ -38,6 +40,8 @@ def make_annotators(color: sv.Color):
         color=sv.Color.WHITE,
         text_color=sv.Color.BLACK,
         text_padding=2,
+        # Ensure text position is handled correctly if needed, e.g., using sv.Position.TOP_LEFT
+        # text_position=sv.Position.TOP_LEFT
     )
     return box, label
 
@@ -75,7 +79,7 @@ def handle_image_input(models, thresholds, placeholder):
         img = cv2.imdecode(data, cv2.IMREAD_COLOR)
         if img is None:
             st.error("Invalid image file.")
-            placeholder.empty() 
+            placeholder.empty()
         else:
             placeholder.info("Processing image...")
             out_frame = process_frame(img, models, thresholds)
@@ -107,9 +111,7 @@ def handle_video_input(models, thresholds, placeholder):
                     if not ret:
                         break
                     out_frame = process_frame(frame, models, thresholds)
-                    show_image(
-                        out_frame, placeholder
-                    )  # Display frame in the placeholder
+                    show_image(out_frame, placeholder)
                     frame_idx += 1
                     if total_frames > 0:
                         prog_bar.progress(frame_idx / total_frames)
@@ -118,7 +120,7 @@ def handle_video_input(models, thresholds, placeholder):
 
                 # Clear placeholder and show success message after loop finishes
                 placeholder.success("Video processing complete.")
-                prog_bar.empty()  # Remove progress bar
+                prog_bar.empty() 
 
             except Exception as e:
                 st.error(f"An error occurred during video processing: {e}")
@@ -126,71 +128,56 @@ def handle_video_input(models, thresholds, placeholder):
             finally:
                 cap.release()
                 try:
-                    os.remove(tmp_path)  # Clean up temp file
+                    os.remove(tmp_path) 
                 except:
-                    pass  # Ignore cleanup errors
+                    pass
     else:
         placeholder.info("Upload a video using the sidebar to start.")
 
 
-def handle_live_camera(models, thresholds, placeholder):
-    cam_idx = st.sidebar.number_input(
-        "Camera Index", value=DEFAULT_CAMERA_IDX, min_value=0
+# Replace the old handle_live_camera function with this one
+def handle_live_camera(models, thresholds):
+    class YOLOVideoProcessor(VideoProcessorBase):
+        def __init__(self):
+            self.models = models
+            self.thresholds = thresholds
+
+        def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
+            img = frame.to_ndarray(format="bgr24")
+            annotated_frame = process_frame(img, self.models, self.thresholds)
+            return av.VideoFrame.from_ndarray(annotated_frame, format="bgr24")
+
+    st.sidebar.info(
+        "Click 'Start' below to access your dash cam."
+    )  # Changed webcam to dash cam
+
+    webrtc_ctx = webrtc_streamer(
+        key="live-camera",
+        mode=WebRtcMode.SENDRECV,
+        video_processor_factory=YOLOVideoProcessor,
+        media_stream_constraints={"video": True, "audio": False},
+        async_processing=True,
+        rtc_configuration={  # Add this to potentially improve connection stability
+            "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+        },
     )
 
-    # Initialize session state for live feed control
-    if "live_active" not in st.session_state:
-        st.session_state.live_active = False
-
-    start_button = st.sidebar.button("Start Live Feed", key="start_live")
-    stop_button = st.sidebar.button("Stop Live Feed", key="stop_live")
-
-    if start_button:
-        st.session_state.live_active = True
-    if stop_button:
-        st.session_state.live_active = False
-
-    if st.session_state.live_active:
-        cap = cv2.VideoCapture(cam_idx)
-        if not cap.isOpened():
-            st.error(f"Cannot access camera index {cam_idx}.")
-            st.session_state.live_active = False  # Stop if camera fails
-            placeholder.empty()
-        else:
-            placeholder.info("Live feed running...")
-            try:
-                while st.session_state.live_active:  # Check state in loop
-                    ret, frame = cap.read()
-                    if not ret:
-                        st.warning("Failed to grab frame from camera.")
-                        break
-                    out_frame = process_frame(frame, models, thresholds)
-                    show_image(
-                        out_frame, placeholder
-                    )  # Display frame in the placeholder
-
-                    # Check again if stop button was pressed during processing
-                    if not st.session_state.live_active:
-                        break
-
-            except Exception as e:
-                st.error(f"An error occurred during live feed: {e}")
-                st.session_state.live_active = False  # Stop on error
-            finally:
-                cap.release()
-                if (
-                    not st.session_state.live_active
-                ):  # Show stopped message only if stopped
-                    placeholder.warning("Live feed stopped.")
-
+    if not webrtc_ctx.state.playing:
+        st.info(
+            "DashCam feed stopped or not started."
+        ) 
     else:
-        placeholder.info("Click 'Start Live Feed' in the sidebar to begin.")
+        st.info(
+            "Processing live DashCam feed..."
+        )  
 
 
-# Streamlit App 
+# Streamlit App
 st.set_page_config(layout="wide", page_title="  RDD Using DL")
 st.title("✨ Road Detection with YOLOv8 🚗🚨")
-st.markdown("[Check On Github](https://github.com/collabdoor/Road-Anomaly-Detection)") # Add this line
+st.markdown(
+    "[Check On Github](https://github.com/collabdoor/Road-Anomaly-Detection)"
+) 
 
 # Sidebar: Model selection
 st.sidebar.header("Configuration")
@@ -235,16 +222,15 @@ input_mode = st.sidebar.radio(
     "Select Input Type", ["Image", "Video", "Live Camera"], key="input_mode"
 )
 
-# Main area placeholder for dynamic content
-placeholder = st.empty()
-
 # --- Main Logic ---
 if input_mode == "Image":
+    placeholder = st.empty()
     handle_image_input(models, thresholds, placeholder)
 elif input_mode == "Video":
+    placeholder = st.empty() 
     handle_video_input(models, thresholds, placeholder)
 elif input_mode == "Live Camera":
-    handle_live_camera(models, thresholds, placeholder)
+    handle_live_camera(models, thresholds)
 
 # Footer
 st.markdown("---")
