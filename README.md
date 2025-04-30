@@ -6,7 +6,7 @@ Our Road Anomaly Detection project. We've been working on using computer vision,
 
 We put together a custom dataset specifically for training our main detection model. The whole process, from sourcing data to annotation, is documented if you're curious about the nitty-gritty details.
 
-*   **Dataset Creation Documentation:** [Read the full process here](https://docs.google.com/document/d/1X8ne9zdq9eRYxlTuo0kpgF-dvk0Zujfk-bexsqm15SE/edit?usp=sharing)
+*   **Dataset Creation Documentation:** [Read the full process here](https://docs.google.com/document/d/1ICyVPLAKgyiLljKMv-1-_pa14pUD2c5RarL6ku9r8X0/edit?usp=sharing)
 
 The dataset structure within this repository looks like this:
 
@@ -211,4 +211,3 @@ Please follow the instructions in the **`do this setup.md`** file located in the
 ---
 
 Thanks for checking out our project!
-```
