@@ -4,7 +4,7 @@ supervision==0.25.1
 torch
 torchvision
 torchaudio
-numpy==1.24.3
+numpy
 PyYAML==6.0.2
 requests==2.32.3
 Pillow==10.4.0
