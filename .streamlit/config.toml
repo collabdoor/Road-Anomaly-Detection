@@ -1,0 +1,8 @@
+[theme]
+base="light"
+primaryColor="#ff004e"
+# You can add other theme options here like:
+# backgroundColor="#..."
+# secondaryBackgroundColor="#..."
+# textColor="#..."
+# font="..."
