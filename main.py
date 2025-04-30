@@ -190,6 +190,7 @@ def handle_live_camera(models, thresholds, placeholder):
 # Streamlit App 
 st.set_page_config(layout="wide", page_title="  RDD Using DL")
 st.title("✨ Road Detection with YOLOv8 🚗🚨")
+st.markdown("[Check On Github](https://github.com/collabdoor/Road-Anomaly-Detection)") # Add this line
 
 # Sidebar: Model selection
 st.sidebar.header("Configuration")
