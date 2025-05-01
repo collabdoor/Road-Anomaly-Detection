@@ -120,6 +120,9 @@ We've built a couple of interfaces to showcase the models in action.
 This is our main demo app, allowing you to test the models easily.
 
 *   **Functionality:** Detect anomalies in uploaded images, videos, or a live camera feed ("Dash Cam").
+
+![app](https://www.mermaidchart.com/raw/58877765-627f-44d3-9349-5c7817849fa3?theme=light&version=v0.1&format=svg)
+
 *   **Features:**
     *   Choose between Model 1 (`M1`) and Model 2 (`M2`) or use both.
     *   Adjust the confidence threshold for each model independently.
