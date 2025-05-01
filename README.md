@@ -4,7 +4,6 @@ Our Road Anomaly Detection project. We've been working on using computer vision,
 
 ![app](https://github.com/user-attachments/assets/3dbea096-a373-4b12-ad8c-a0dd4a990dd0)
 
-
 ## Dataset
 
 We put together a custom dataset specifically for training our main detection model. The whole process, from sourcing data to annotation, is documented if you're curious about the nitty-gritty details.
@@ -25,6 +24,7 @@ dataset/
     ├── images/
     └── labels/
 ```
+![s](https://www.mermaidchart.com/raw/9d89fee1-5127-41e5-a641-ef1ae628fc61?theme=light&version=v0.1&format=svg)
 
 ## Model 1: Custom Trained YOLOv8m (`best.pt`)
 
