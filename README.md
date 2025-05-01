@@ -212,7 +212,7 @@ C:.
 
 Want to run this project on your own machine? Great! We've put together a guide to help you set up the environment and get things running.
 
-Please follow the instructions in the **`do this setup.md`** file located in the root of this repository.
+Please follow the instructions in the [**`do this setup.md`**](https://github.com/collabdoor/Road-Anomaly-Detection/blob/main/do%20this%20setup.md) file located in the root of this repository.
 
 ---
 
