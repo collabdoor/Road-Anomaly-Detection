@@ -19,13 +19,21 @@ MODEL_PREFIX = {
     "M2 (Model 2)": "M2",
 }
 DEFAULT_CONF = {"M1 (Model 1)": 0.35, "M2 (Model 2)": 0.40}
-
-# Target width for processing live frames. Lower values increase performance.
-LIVE_FEED_TARGET_WIDTH = 640 
+LIVE_FEED_TARGET_WIDTH = 640
 
 # Setup logging
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+
+
+if "processed_file_id" not in st.session_state:
+    st.session_state.processed_file_id = None
+if "processing_complete" not in st.session_state:
+    st.session_state.processing_complete = False
+if "output_file_path" not in st.session_state:
+    st.session_state.output_file_path = None
+if "output_file_name" not in st.session_state:
+    st.session_state.output_file_name = None
 
 
 @st.cache_resource
@@ -58,24 +66,18 @@ def process_frame(
     annotated_frame = frame.copy()
     for model_name, (model, names_map, box_ann, label_ann) in models.items():
         try:
-            # Perform inference
             results = model.predict(frame, conf=thresholds[model_name], verbose=False)[
                 0
             ]
             detections = sv.Detections.from_ultralytics(results)
-
-            # Create labels
             labels = [
                 f"{MODEL_PREFIX[model_name]}:{names_map.get(cls_id, str(cls_id))} {conf:.2f}"
                 for cls_id, conf in zip(detections.class_id, detections.confidence)
             ]
-
-            # Annotate the frame
             annotated_frame = box_ann.annotate(annotated_frame, detections)
             annotated_frame = label_ann.annotate(
                 annotated_frame, detections, labels=labels
             )
-
         except Exception as e:
             logger.error(f"Error during prediction/annotation for {model_name}: {e}")
             cv2.putText(
@@ -87,18 +89,40 @@ def process_frame(
                 (0, 0, 255),
                 2,
             )
-
     return annotated_frame
 
 
+def cleanup_previous_output():
+    """Deletes the previously generated output file if it exists."""
+    if st.session_state.output_file_path and os.path.exists(
+        st.session_state.output_file_path
+    ):
+        try:
+            os.remove(st.session_state.output_file_path)
+            logger.info(
+                f"Cleaned up previous output file: {st.session_state.output_file_path}"
+            )
+        except OSError as rm_err:
+            logger.error(
+                f"Error removing previous output file {st.session_state.output_file_path}: {rm_err}"
+            )
+    st.session_state.output_file_path = None
+    st.session_state.output_file_name = None
+    st.session_state.processing_complete = False
+    st.session_state.processed_file_id = None
+
+
 def handle_image_input(models, thresholds, placeholder):
+    # Reset video processing state if switching to image mode
+    if st.session_state.processed_file_id is not None:
+        cleanup_previous_output()
+
     uploaded_file = st.sidebar.file_uploader(
         "Upload Image", type=["jpg", "jpeg", "png", "bmp", "webp"], key="img_upload"
     )
     if uploaded_file:
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-
         if img is None:
             st.error("Could not decode image. Please upload a valid image file.")
             placeholder.empty()
@@ -115,14 +139,62 @@ def handle_video_input(models, thresholds, status_placeholder):
     uploaded_file = st.sidebar.file_uploader(
         "Upload Video", type=["mp4", "avi", "mov", "mkv"], key="vid_upload"
     )
+
     if uploaded_file:
+        current_file_id = uploaded_file.file_id
+
+        # Check if it's a new file upload
+        if current_file_id != st.session_state.processed_file_id:
+            logger.info(
+                f"New video file uploaded (ID: {current_file_id}). Resetting state."
+            )
+            cleanup_previous_output()  # Clean up old output file before processing new one
+            st.session_state.processed_file_id = current_file_id  # Set the new file ID
+
+        # If processing is already complete for this file, just show download button
+        if st.session_state.processing_complete and st.session_state.output_file_path:
+            status_placeholder.success("✅ Video processing complete!")
+            if os.path.exists(st.session_state.output_file_path):
+                try:
+                    with open(st.session_state.output_file_path, "rb") as f:
+                        video_bytes = f.read()
+                    st.download_button(
+                        label="⬇️ Download Processed Video",
+                        data=video_bytes,
+                        file_name=st.session_state.output_file_name
+                        or f"processed_{uploaded_file.name}",
+                        mime="video/mp4",
+                        key="download_btn_rerun",  # Added key for consistency
+                    )
+                    logger.info(
+                        f"Download button shown again for already processed file: {st.session_state.output_file_path}"
+                    )
+                except Exception as e:
+                    st.error(
+                        f"Error reading previously processed video for download: {e}"
+                    )
+                    logger.error(
+                        f"Error reading existing output file {st.session_state.output_file_path} for download",
+                        exc_info=e,
+                    )
+                    # Maybe reset state if file reading fails?
+                    # cleanup_previous_output()
+            else:
+                st.error("Previously processed file not found. Please upload again.")
+                logger.warning(
+                    f"Session state indicated processed file {st.session_state.output_file_path} but it was not found."
+                )
+                cleanup_previous_output()  # Reset state as the file is missing
+            return  # Stop further execution in this function call
+
+        # --- Start Processing for a new file or if not yet complete ---
         input_tmp_path = None
-        output_video_path = None
+        output_video_path_current_run = None  # Use a temporary variable for this run
         cap = None
         writer = None
+        processing_succeeded = False  # Flag to track success within try block
 
         try:
-            # Save uploaded video to a temporary file
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=".mp4"
             ) as input_tmp_file:
@@ -136,57 +208,51 @@ def handle_video_input(models, thresholds, status_placeholder):
                 status_placeholder.empty()
                 return
 
-            # Get video properties
             width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
             fps = cap.get(cv2.CAP_PROP_FPS)
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            if fps <= 0:  # Handle potential issue with reading FPS
+            if fps <= 0:
                 fps = 30
                 logger.warning("Could not read video FPS, defaulting to 30.")
 
-            # Create a temporary file for the output video
+            # Create a *new* temporary file for the output of this run
             with tempfile.NamedTemporaryFile(
                 delete=False, suffix=".mp4"
             ) as output_tmp_file:
-                output_video_path = output_tmp_file.name
-            logger.info(f"Output video will be saved to: {output_video_path}")
+                output_video_path_current_run = output_tmp_file.name
+            logger.info(
+                f"Output video for this run will be saved to: {output_video_path_current_run}"
+            )
 
-            # Setup VideoWriter
-            fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec for MP4
-            writer = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+            writer = cv2.VideoWriter(
+                output_video_path_current_run, fourcc, fps, (width, height)
+            )
             if not writer.isOpened():
-                st.error(
-                    f"Error initializing video writer. Check codec ('mp4v') and OpenCV backend."
-                )
+                st.error(f"Error initializing video writer.")
                 logger.error(
-                    f"Failed to open VideoWriter for path: {output_video_path}"
+                    f"Failed to open VideoWriter for path: {output_video_path_current_run}"
                 )
-                output_video_path = None 
+                if output_video_path_current_run and os.path.exists(
+                    output_video_path_current_run
+                ):
+                    os.remove(
+                        output_video_path_current_run
+                    )  # Clean up failed output file
+                output_video_path_current_run = None
                 return
 
             prog_bar = st.progress(0, text="Processing video...")
-            status_placeholder.info("Processing video... Preview shown below.")
-            preview_placeholder = st.empty() 
+            status_placeholder.info("Processing video, please wait...")
             frame_idx = 0
 
             while True:
                 ret, frame = cap.read()
                 if not ret:
-                    break  # End of video
-
-                # Process frame
+                    break
                 out_frame = process_frame(frame, models, thresholds)
-
-                # Write to output file
                 writer.write(out_frame)
-
-                # Show preview
-                preview_placeholder.image(
-                    out_frame, channels="BGR", use_container_width=True
-                )
-
-                # Update progress
                 frame_idx += 1
                 progress_percentage = (
                     frame_idx / total_frames if total_frames > 0 else 0
@@ -194,29 +260,23 @@ def handle_video_input(models, thresholds, status_placeholder):
                 prog_text = f"Processing video... {frame_idx}/{total_frames if total_frames > 0 else '?'}"
                 prog_bar.progress(min(progress_percentage, 1.0), text=prog_text)
 
-            # Processing finished
-            preview_placeholder.empty()  
-            status_placeholder.success("✅ Video processing complete!")
+            processing_succeeded = True  # Mark success only if loop completes
             prog_bar.progress(1.0, text="Processing complete.")
             logger.info("Video processing finished.")
 
         except Exception as e:
             st.error(f"An error occurred during video processing: {e}")
             logger.error("Error during video processing loop", exc_info=e)
-            status_placeholder.error("Processing failed.")  
-            preview_placeholder.empty()  
-            prog_bar.empty()
-            output_video_path = None  
-            
+            status_placeholder.error("Processing failed.")
+            if "prog_bar" in locals():
+                prog_bar.empty()  # Ensure progress bar removed on error
+
         finally:
-            # Release resources
             if cap is not None:
                 cap.release()
             if writer is not None:
                 writer.release()
             logger.info("Video capture and writer resources released.")
-
-            # Clean up input temporary file
             if input_tmp_path and os.path.exists(input_tmp_path):
                 try:
                     os.remove(input_tmp_path)
@@ -226,43 +286,67 @@ def handle_video_input(models, thresholds, status_placeholder):
                         f"Error removing input temp file {input_tmp_path}: {rm_err}"
                     )
 
-        # --- Provide Download Button ---
-        if output_video_path and os.path.exists(output_video_path):
+        # --- Post-processing logic ---
+        if (
+            processing_succeeded
+            and output_video_path_current_run
+            and os.path.exists(output_video_path_current_run)
+        ):
+            # Store path and status in session state
+            st.session_state.output_file_path = output_video_path_current_run
+            st.session_state.output_file_name = f"processed_{uploaded_file.name}"
+            st.session_state.processing_complete = True
+            st.session_state.processed_file_id = (
+                current_file_id  # Ensure ID is set on success
+            )
+
+            status_placeholder.success("✅ Video processing complete!")
+            # Now display the download button for the first time
             try:
-                with open(output_video_path, "rb") as f:
+                with open(st.session_state.output_file_path, "rb") as f:
                     video_bytes = f.read()
                 st.download_button(
                     label="⬇️ Download Processed Video",
                     data=video_bytes,
-                    file_name=f"processed_{uploaded_file.name}",
+                    file_name=st.session_state.output_file_name,
                     mime="video/mp4",
+                    key="download_btn_first",  # Different key maybe? Helps debugging
                 )
-                logger.info(f"Download button provided for: {output_video_path}")
+                logger.info(
+                    f"Download button provided for newly processed file: {st.session_state.output_file_path}"
+                )
             except Exception as e:
                 st.error(f"Error reading processed video for download: {e}")
                 logger.error(
-                    f"Error reading output file {output_video_path} for download",
+                    f"Error reading output file {st.session_state.output_file_path} for download",
                     exc_info=e,
                 )
-            finally:
-                # Clean up output temporary file AFTER offering download
-                if os.path.exists(output_video_path):
-                    try:
-                        os.remove(output_video_path)
-                        logger.info(f"Removed output temp file: {output_video_path}")
-                    except OSError as rm_err:
-                        logger.error(
-                            f"Error removing output temp file {output_video_path}: {rm_err}"
-                        )
-        elif (
-            output_video_path
-        ): 
+                cleanup_previous_output()  # Reset state if download prep fails
+
+        elif output_video_path_current_run and os.path.exists(
+            output_video_path_current_run
+        ):
+            # Processing failed, clean up the output file created during this failed run
             logger.warning(
-                "Output video file not found for download, likely due to processing error."
+                f"Processing failed, cleaning up temporary output file: {output_video_path_current_run}"
             )
-        prog_bar.empty()  
-        
+            try:
+                os.remove(output_video_path_current_run)
+            except OSError as rm_err:
+                logger.error(
+                    f"Error removing failed output temp file {output_video_path_current_run}: {rm_err}"
+                )
+            # Ensure session state is cleared if processing failed after a new file upload began
+            if current_file_id == st.session_state.processed_file_id:
+                cleanup_previous_output()
+
+        if "prog_bar" in locals():
+            prog_bar.empty()  # Final removal of progress bar
+
     else:
+        # No file uploaded, ensure any previous state is cleared
+        if st.session_state.processed_file_id is not None:
+            cleanup_previous_output()
         status_placeholder.info("Upload a video using the sidebar to start.")
 
 
@@ -278,23 +362,17 @@ class YOLOVideoProcessor(VideoProcessorBase):
     def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
         img = frame.to_ndarray(format="bgr24")
         original_height, original_width = img.shape[:2]
-        img_resized = img  
-        
-        # Resize for performance if needed
+        img_resized = img
         if self.target_width is not None and original_width > self.target_width:
             aspect_ratio = original_height / original_width
             target_height = int(self.target_width * aspect_ratio)
             img_resized = cv2.resize(
                 img, (self.target_width, target_height), interpolation=cv2.INTER_AREA
             )
-
-        # Process the (potentially resized) frame
         annotated_frame_resized = process_frame(
             img_resized, self.models, self.thresholds
         )
-
-        # Resize back to original dimensions for display consistency
-        if img_resized is not img:  
+        if img_resized is not img:
             final_frame = cv2.resize(
                 annotated_frame_resized,
                 (original_width, original_height),
@@ -302,22 +380,23 @@ class YOLOVideoProcessor(VideoProcessorBase):
             )
         else:
             final_frame = annotated_frame_resized
-
         return av.VideoFrame.from_ndarray(final_frame, format="bgr24")
 
 
 def handle_live_camera(models, thresholds):
+    # Reset video processing state if switching to live mode
+    if st.session_state.processed_file_id is not None:
+        cleanup_previous_output()
+
     st.sidebar.info(
         "Click 'START' below to access your camera. "
         "Ensure camera permissions are granted in your browser."
     )
-
-    # Suggest lower resolution/FPS to the browser for better performance
     media_constraints = {
         "video": {
             "width": {"ideal": 640},
             "height": {"ideal": 480},
-            "frameRate": {"ideal": 15, "max": 30}  
+            "frameRate": {"ideal": 15, "max": 30},
         },
         "audio": False,
     }
@@ -332,17 +411,13 @@ def handle_live_camera(models, thresholds):
         mode=WebRtcMode.SENDRECV,
         video_processor_factory=processor_factory,
         media_stream_constraints=media_constraints,
-        async_processing=True,  
-        rtc_configuration={  
-            "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
-        },
+        async_processing=True,
+        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
     )
-
     if not webrtc_ctx.state.playing:
         st.info("Camera feed stopped or not started.")
 
 
-# --- Streamlit App Main ---
 def main():
     st.set_page_config(layout="wide", page_title="Road Anomaly Detection")
     st.title("✨ Road Anomaly Detection with YOLOv8 🚗🚨")
@@ -350,7 +425,6 @@ def main():
         "[Check On Github](https://github.com/collabdoor/Road-Anomaly-Detection)"
     )
 
-    # Sidebar Configuration
     st.sidebar.header("⚙️ Configuration")
     st.sidebar.subheader("🧠 Models")
     use_m1 = st.sidebar.checkbox("M1 (RoadModel_yolov8m)", value=True, key="cb_m1")
@@ -362,7 +436,6 @@ def main():
     if use_m2:
         models_to_load["M2 (Model 2)"] = MODEL_PATHS["M2 (Model 2)"]
 
-    # Load models and setup annotators
     loaded_models = {}
     thresholds = {}
     model_load_failed = False
@@ -391,15 +464,13 @@ def main():
 
     if model_load_failed:
         st.error("One or more models failed to load. Check logs and file paths.")
-        st.stop() 
+        st.stop()
 
-    # Sidebar Input Selection
     st.sidebar.subheader("🎬 Input Source")
     input_mode = st.sidebar.radio(
         "Select Input Type", ["Image", "Video", "Live Camera"], key="input_mode_radio"
     )
 
-    # Main Area Logic based on Input Mode
     if input_mode == "Image":
         image_placeholder = st.empty()
         handle_image_input(loaded_models, thresholds, image_placeholder)
@@ -407,9 +478,9 @@ def main():
         video_status_placeholder = st.empty()
         handle_video_input(loaded_models, thresholds, video_status_placeholder)
     elif input_mode == "Live Camera":
+        # Pass models and thresholds needed by the handler
         handle_live_camera(loaded_models, thresholds)
 
-    # Footer
     st.markdown("---")
     st.write("© 2025 Team 21")
 
