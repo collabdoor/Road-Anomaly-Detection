@@ -2,6 +2,9 @@
 
 Our Road Anomaly Detection project. We've been working on using computer vision, specifically YOLOv8 models, to automatically spot issues like cracks and potholes on road surfaces. This repository contains the dataset details, the models we trained and used, evaluation results, and the demo applications we built.
 
+![app](https://github.com/user-attachments/assets/3dbea096-a373-4b12-ad8c-a0dd4a990dd0)
+
+
 ## Dataset
 
 We put together a custom dataset specifically for training our main detection model. The whole process, from sourcing data to annotation, is documented if you're curious about the nitty-gritty details.
