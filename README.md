@@ -12,7 +12,7 @@ We put together a custom dataset specifically for training our main detection mo
 
 The dataset structure within this repository looks like this:
 
-```
+```tree
 dataset/
 ├── test/
 │   ├── images/
@@ -24,7 +24,88 @@ dataset/
     ├── images/
     └── labels/
 ```
-![s](https://www.mermaidchart.com/raw/9d89fee1-5127-41e5-a641-ef1ae628fc61?theme=light&version=v0.1&format=svg)
+<!-- ![s](https://www.mermaidchart.com/raw/9d89fee1-5127-41e5-a641-ef1ae628fc61?theme=light&version=v0.1&format=svg) -->
+
+```mermaid
+---
+config:
+  theme: neo
+  themeVariables:
+    fontSize: 13px
+  layout: fixed
+---
+flowchart TD
+ subgraph sg0["<span style=color:>1️⃣Initial Data Collection</span>"]
+    direction LR
+        DS1["RAD Dataset<br>(~8.4k img)"]
+        DS2["Indian Roads<br>(~5.1k img)"]
+        DS3["Humps/Bumps/Potholes<br>(~3.2k img)"]
+        DS4["HighRPD Dataset<br>(~11.7k img)"]
+  end
+ subgraph sg1["2️⃣HighRPD Preprocessing"]
+        PreprocHighRPD["Preprocess HighRPD<br>(XML-&gt;YOLO, Map Classes, Split 70/20/10)"]
+        PreprocOutput["Preprocessed HighRPD<br>(Train/Valid/Test Splits)"]
+  end
+ subgraph sg2["3️⃣Label Standardization"]
+        InitialCollect["Combined Other Datasets<br>(RAD, Indian, HBP)"]
+        Standardize["Standardize All Labels<br>(Define 7 Unified Classes)"]
+  end
+ subgraph sg3["4️⃣Merging &amp; Initial Split"]
+        Merge["Merge Datasets<br>(HighRPD Splits + Standardized Others)<br>Add Prefixes, Verify Pairs"]
+        InitialMerged["Initial Merged Dataset<br>Train: 18,005 | Valid: 4,518 | Test: 2,846<br>(Total: 25,369 Images)"]
+  end
+ subgraph sg4["5️⃣Balancing via Augmentation (Train Set)"]
+        AnalyzeImbalance["Analyze Train Set Imbalance<br>(Low: HV, Ped, SB)"]
+        Augment["Augment Minority Classes<br>(Flips, Brightness, Rotations)"]
+        AugmentedImages["Generated Augmented Images<br>(+5,316 Train: HV, Ped, SB)"]
+  end
+ subgraph sg5["6️⃣Class Weight Calculation"]
+        CalcWeights["Calculate Class Weights<br>(Based on Final Train Dist.)"]
+        WeightsOutput["Class Weights<br>(for data.yaml)"]
+  end
+ subgraph sg6["7️⃣Final Dataset"]
+        FinalDataset["Final Unified &amp; Balanced Dataset<br>Total: 30,685 Images<br><b>Train: 23,321</b> (Orig+Aug)<br>Valid: 4,518 | Test: 2,846<br>(YOLOv8 Format + Weights)"]
+  end
+    DS4 --> PreprocHighRPD
+    PreprocHighRPD --> PreprocOutput
+    DS1 --> InitialCollect
+    DS2 --> InitialCollect
+    DS3 --> InitialCollect
+    InitialCollect -- Data & Labels --> Standardize
+    PreprocOutput -- HighRPD Data & Labels --> Standardize
+    Standardize -- Standardized Data --> Merge
+    PreprocOutput -- "Pre-split HighRPD Data" --> Merge
+    Merge --> InitialMerged
+    InitialMerged -- Train Split --> AnalyzeImbalance
+    AnalyzeImbalance --> Augment
+    Augment --> AugmentedImages
+    Augment -- "Post-Augmentation Train Dist." --> CalcWeights
+    CalcWeights --> WeightsOutput
+    InitialMerged -- Original Train, Valid, Test Splits --> FinalDataset
+    AugmentedImages -- Augmented Train Images --> FinalDataset
+    WeightsOutput -- Class Weights --> FinalDataset
+     DS1:::dataset
+     DS2:::dataset
+     DS3:::dataset
+     DS4:::dataset
+     PreprocHighRPD:::process
+     PreprocOutput:::output
+     InitialCollect:::output
+     Standardize:::process
+     Merge:::process
+     InitialMerged:::output
+     AnalyzeImbalance:::importantNote
+     Augment:::process
+     AugmentedImages:::output
+     CalcWeights:::process
+     WeightsOutput:::output
+     FinalDataset:::output
+    classDef dataset fill:#f9d,stroke:#333,stroke-width:1px
+    classDef process fill:#cde,stroke:#333,stroke-width:1px
+    classDef output fill:#dfd,stroke:#333,stroke-width:2px
+    classDef importantNote fill:#ffc,stroke:#e7b400,stroke-width:1px,color:black
+
+```
 
 ## Model 1: Custom Trained YOLOv8m (`best.pt`)
 
@@ -121,7 +202,53 @@ This is our main demo app, allowing you to test the models easily.
 
 *   **Functionality:** Detect anomalies in uploaded images, videos, or a live camera feed ("Dash Cam").
 
-![app](https://www.mermaidchart.com/raw/58877765-627f-44d3-9349-5c7817849fa3?theme=light&version=v0.1&format=svg)
+<!-- ![app](https://www.mermaidchart.com/raw/58877765-627f-44d3-9349-5c7817849fa3?theme=light&version=v0.1&format=svg) -->
+
+```mermaid
+
+---
+config:
+  layout: fixed
+  theme: mc
+  look: neo
+---
+flowchart TD
+    U["User"] --> SB["Streamlit Sidebar"]
+    SB --> MS["Model Selection"] & CT["Confidence Thresholds"] & IS["Input Source"]
+    IS --> FileInput["Uploaded File (Image)/(Video)"] & CamInput["Camera Feed"]
+    FileInput --> Frame["Input Frame/Image"]
+    CamInput --> Frame
+    Frame --> PROC["Processing Engine"]
+    MS --> PROC
+    CT --> PROC
+    PROC --> YOLO["YOLOv8 Inference"] & AnnotatedFrame["Annotated Frame/Image"]
+    YOLO --> PROC
+    AnnotatedFrame --> MA["Streamlit Main Area"]
+    MA --> U
+     U:::user
+     SB:::ui
+     MS:::config
+     CT:::config
+     IS:::config
+     FileInput:::data
+     CamInput:::data
+     Frame:::data
+     PROC:::process
+     YOLO:::model
+     AnnotatedFrame:::data
+     AnnotatedFrame:::Class_01
+     MA:::ui
+    classDef user fill:#f9d,stroke:#333,stroke-width:2px
+    classDef ui fill:#add,stroke:#333,stroke-width:2px
+    classDef config fill:#ffeb99,stroke:#333,stroke-width:1px
+    classDef data fill:#cceeff,stroke:#333,stroke-width:1px
+    classDef process fill:#ccffcc,stroke:#333,stroke-width:2px
+    classDef model fill:#ffcc99,stroke:#333,stroke-width:2px
+    classDef Class_01 stroke-width:4px, stroke-dasharray: 0, stroke:#D50000
+    style AnnotatedFrame color:#000000
+
+
+```
 
 *   **Features:**
     *   Choose between Model 1 (`M1`) and Model 2 (`M2`) or use both.
