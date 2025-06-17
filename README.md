@@ -29,13 +29,16 @@ dataset/
 ```mermaid
 ---
 config:
-  theme: neo
+  theme: base
   themeVariables:
-    fontSize: 13px
-  layout: fixed
+    primaryColor: '#ffffff'
+    primaryTextColor: '#000'
+    primaryBorderColor: '#7C838A'
+    lineColor: '#536162'
+    textColor: '#000'
 ---
 flowchart TD
- subgraph sg0["<span style=color:>1️⃣Initial Data Collection</span>"]
+ subgraph sg0["1️⃣Initial Data Collection"]
     direction LR
         DS1["RAD Dataset<br>(~8.4k img)"]
         DS2["Indian Roads<br>(~5.1k img)"]
@@ -100,11 +103,10 @@ flowchart TD
      CalcWeights:::process
      WeightsOutput:::output
      FinalDataset:::output
-    classDef dataset fill:#f9d,stroke:#333,stroke-width:1px
-    classDef process fill:#cde,stroke:#333,stroke-width:1px
-    classDef output fill:#dfd,stroke:#333,stroke-width:2px
-    classDef importantNote fill:#ffc,stroke:#e7b400,stroke-width:1px,color:black
-
+    classDef dataset fill:#E0F7FA,stroke:#00796B,stroke-width:2px,color:#000
+    classDef process fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,color:#000
+    classDef output fill:#FFFDE7,stroke:#FBC02D,stroke-width:2px,color:#000
+    classDef importantNote fill:#FFEBEE,stroke:#D32F2F,stroke-width:2px,color:#000
 ```
 
 ## Model 1: Custom Trained YOLOv8m (`best.pt`)
@@ -205,12 +207,15 @@ This is our main demo app, allowing you to test the models easily.
 <!-- ![app](https://www.mermaidchart.com/raw/58877765-627f-44d3-9349-5c7817849fa3?theme=light&version=v0.1&format=svg) -->
 
 ```mermaid
-
 ---
 config:
-  layout: fixed
-  theme: mc
-  look: neo
+  theme: base
+  themeVariables:
+    primaryColor: '#ffffff'
+    primaryTextColor: '#000'
+    primaryBorderColor: '#7C838A'
+    lineColor: '#536162'
+    textColor: '#000'
 ---
 flowchart TD
     U["User"] --> SB["Streamlit Sidebar"]
@@ -236,18 +241,13 @@ flowchart TD
      PROC:::process
      YOLO:::model
      AnnotatedFrame:::data
-     AnnotatedFrame:::Class_01
      MA:::ui
-    classDef user fill:#f9d,stroke:#333,stroke-width:2px
-    classDef ui fill:#add,stroke:#333,stroke-width:2px
-    classDef config fill:#ffeb99,stroke:#333,stroke-width:1px
-    classDef data fill:#cceeff,stroke:#333,stroke-width:1px
-    classDef process fill:#ccffcc,stroke:#333,stroke-width:2px
-    classDef model fill:#ffcc99,stroke:#333,stroke-width:2px
-    classDef Class_01 stroke-width:4px, stroke-dasharray: 0, stroke:#D50000
-    style AnnotatedFrame color:#000000
-
-
+    classDef user fill:#FFCDD2,stroke:#C62828,stroke-width:2px,color:#000
+    classDef ui fill:#D1C4E9,stroke:#4527A0,stroke-width:2px,color:#000
+    classDef config fill:#FFF9C4,stroke:#F9A825,stroke-width:2px,color:#000
+    classDef data fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px,color:#000
+    classDef process fill:#B3E5FC,stroke:#0277BD,stroke-width:2px,color:#000
+    classDef model fill:#FFCCBC,stroke:#D84315,stroke-width:2px,color:#000
 ```
 
 *   **Features:**
@@ -349,4 +349,4 @@ Please follow the instructions in the [**`do this setup.md`**](https://github.co
 - [Navneet Sharma](https://github.com/nav9v)
 - [Ojus Kumar](https://github.com/ojuss)
 
-Thanks for checking out our project!
+Thanks for checking out our project
