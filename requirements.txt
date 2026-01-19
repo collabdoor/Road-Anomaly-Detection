@@ -6,7 +6,7 @@ torchvision
 torchaudio
 numpy
 PyYAML==6.0.2
-requests==2.32.3
+requests==2.32.4
 Pillow==10.4.0
 tqdm==4.67.1
 streamlit==1.45.0
